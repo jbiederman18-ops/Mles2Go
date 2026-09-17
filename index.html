@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Miles To Go</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Miles To Go">
+<meta name="theme-color" content="#FBF5EE">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF5EE; --card:#FFFDF9;
+  --blush:#F1D3CB; --blush-soft:#F8E7E1; --rose:#A5555B;
+  --sage:#A9BCA3; --sage-soft:#DFE7DA; --sage-deep:#566B52;
+  --ink:#3A3834; --muted:#756F67;
+  --serif:"Young Serif", Georgia, "Times New Roman", serif;
+  --sans:"Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --shadow:0 1px 2px rgba(110,80,60,.07), 0 10px 26px rgba(110,80,60,.10);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:480px;margin:0 auto;padding:18px 20px 56px}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sage-deep);outline-offset:3px;border-radius:8px}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.2}
+h1{font-size:1.3rem}
+h2{font-size:1.35rem;margin:36px 0 12px}
+p{margin:0}
+
+.top h1{color:var(--sage-deep)}
+.greeting{color:var(--muted);margin-top:2px}
+.demo{background:var(--sage-soft);color:var(--sage-deep);font-size:.9rem;padding:8px 12px;border-radius:12px;margin-bottom:14px}
+
+/* Hero: the mile marker */
+.hero{display:grid;justify-items:center;margin-top:22px}
+.sign{position:relative;background:var(--sage-deep);color:var(--paper);border-radius:22px;padding:18px 36px 16px;text-align:center;min-width:190px;
+  box-shadow:inset 0 0 0 5px var(--sage-deep), inset 0 0 0 7px rgba(251,245,238,.75), 0 10px 22px rgba(86,107,82,.22)}
+.sign::after{content:"";position:absolute;left:50%;top:100%;width:12px;height:44px;margin-left:-6px;background:var(--sage-deep);border-radius:0 0 3px 3px}
+.sign .num{display:block;font-family:var(--serif);font-size:4.6rem;line-height:1;letter-spacing:-.02em}
+.sign .num.words{font-size:2.1rem;padding:10px 0 4px}
+.sign .unit{display:block;margin-top:6px;font-size:1.05rem;font-weight:500}
+.road{width:100%;height:auto;margin-top:-4px;overflow:visible}
+.road .mark{fill:var(--paper);stroke:var(--sage);stroke-width:1.5}
+.road .mark.passed{fill:var(--sage);stroke:var(--sage-deep)}
+.road .you{fill:var(--rose)}
+.road-end{font-family:var(--serif);font-size:12px;fill:var(--muted)}
+.week{text-align:center;max-width:32ch;margin:8px auto 0;font-size:1.05rem}
+
+/* Envelopes */
+.envelope{position:relative;display:block;width:100%;aspect-ratio:4/3;border:0;padding:0;border-radius:18px;background:var(--blush-soft);box-shadow:var(--shadow);overflow:hidden;perspective:900px}
+.envelope::before{content:"";position:absolute;left:0;right:0;top:0;height:58%;background:var(--blush);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transition:transform .55s ease}
+.envelope .seal{position:absolute;left:50%;top:58%;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:var(--rose);display:grid;place-items:center;box-shadow:0 3px 8px rgba(120,60,60,.28);transition:transform .45s ease,opacity .45s ease;z-index:1}
+.envelope .seal svg{width:26px;height:26px}
+.env-date{position:absolute;left:0;right:0;bottom:46px;font-family:var(--serif);font-size:1.2rem}
+.env-cta{position:absolute;left:0;right:0;bottom:18px;color:var(--rose);font-weight:600;font-size:.95rem}
+.envelope .tags{position:absolute;top:12px;left:12px;z-index:2;margin:0}
+.envelope.opening::before{transform:rotateX(180deg)}
+.envelope.opening .seal{transform:scale(1.5);opacity:0}
+
+/* Letters */
+.letter{background:var(--card);border-radius:18px;padding:18px 18px 20px;box-shadow:var(--shadow)}
+.letter.revealed{animation:rise .55s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.letter.empty{text-align:center;color:var(--muted);padding:28px 20px}
+.polaroid{margin:4px 2px 20px;background:#fff;padding:10px 10px 38px;border-radius:3px;box-shadow:0 2px 12px rgba(110,80,60,.16);transform:rotate(-1.2deg);position:relative}
+.polaroid img{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--blush-soft)}
+.polaroid figcaption{position:absolute;left:0;right:0;bottom:9px;text-align:center;font-family:var(--serif);color:var(--muted);font-size:.95rem}
+.letter-date{font-family:var(--serif);font-size:1.25rem;margin-bottom:10px}
+.message{font-size:1.12rem;line-height:1.65;white-space:pre-line;margin-bottom:18px}
+.song{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--sage-soft);text-decoration:none}
+.song .play{flex:none;width:38px;height:38px;border-radius:50%;background:var(--sage-deep);display:grid;place-items:center}
+.song small{display:block;color:var(--sage-deep);font-size:.85rem;font-weight:600}
+.idea{margin-top:10px;padding:14px;border-radius:14px;background:var(--blush-soft)}
+.idea h3{font-size:1.05rem;margin-bottom:4px}
+.idea p{white-space:pre-line}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{font-size:.8rem;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--sage-soft);color:var(--sage-deep)}
+.tag.holiday{background:var(--blush);color:#7C3C41}
+.envelope .tag{background:rgba(255,253,249,.85)}
+.welcome h2{margin:0 0 6px;font-size:1.8rem}
+
+/* Waiting + past */
+.waiting{display:flex;gap:12px;overflow-x:auto;padding:6px 20px 18px;margin:-6px -20px -8px}
+.mini{flex:none;position:relative;width:116px;aspect-ratio:4/3;border:0;padding:0;border-radius:12px;background:var(--blush-soft);box-shadow:var(--shadow);overflow:hidden}
+.mini::before{content:"";position:absolute;left:0;right:0;top:0;height:55%;background:var(--blush);clip-path:polygon(0 0,100% 0,50% 100%)}
+.mini span{position:absolute;left:0;right:0;bottom:8px;font-family:var(--serif);font-size:.95rem}
+.past{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 12px}
+.thumb{border:0;background:#fff;padding:5px 5px 22px;border-radius:3px;box-shadow:0 1px 8px rgba(110,80,60,.14);position:relative}
+.thumb:nth-child(3n+1){transform:rotate(-1.5deg)}
+.thumb:nth-child(3n+2){transform:rotate(1deg)}
+.thumb img,.thumb .blank{width:100%;aspect-ratio:1;object-fit:cover;background:var(--blush-soft)}
+.thumb .blank{display:grid;place-items:center;font-family:var(--serif);color:var(--rose);font-size:.8rem;padding:6px;text-align:center}
+.thumb span{position:absolute;left:0;right:0;bottom:4px;font-size:.72rem;color:var(--muted)}
+.retry{margin-top:12px}
+
+/* Sheet */
+.modal{position:fixed;inset:0;background:rgba(58,56,52,.38);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.modal[hidden]{display:none}
+.sheet{background:var(--paper);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:10px 20px calc(28px + env(safe-area-inset-bottom));animation:sheet .3s ease both;-webkit-overflow-scrolling:touch}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}}
+.sheet-top{position:sticky;top:0;display:flex;justify-content:flex-end;padding:4px 0 8px;background:var(--paper);z-index:3}
+
+/* Buttons + forms */
+.btn{display:block;width:100%;border:0;background:var(--sage-deep);color:var(--paper);padding:14px;border-radius:14px;font-weight:600;font-size:1rem}
+.btn:disabled{opacity:.6}
+.btn-soft{display:inline-block;border:0;background:var(--sage-soft);color:var(--sage-deep);padding:8px 14px;border-radius:999px;font-weight:600;font-size:.9rem;text-decoration:none}
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-weight:600;font-size:.9rem;margin-bottom:5px}
+input[type=text],input[type=url],input[type=password],input[type=date],textarea{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1.5px solid var(--sage-soft);border-radius:12px;background:var(--card);color:var(--ink)}
+input:focus,textarea:focus{outline:none;border-color:var(--sage)}
+textarea{resize:vertical;line-height:1.5}
+.hint{font-size:.85rem;color:var(--muted);margin-top:4px}
+.error{color:var(--rose);font-weight:600;margin-bottom:12px}
+.photo-field{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.photo-field .preview{flex:none;width:84px;height:104px;border-radius:6px;object-fit:cover;background:var(--blush-soft)}
+.editor h2{margin:0 0 8px}
+.switch{display:flex;align-items:center;gap:10px;font-weight:600;margin-bottom:16px}
+.switch input{width:22px;height:22px;accent-color:var(--sage-deep)}
+
+/* Josh's desk */
+.admin-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tabs{display:flex;gap:4px;margin:18px 0 14px;background:var(--sage-soft);padding:4px;border-radius:999px}
+.tabs button{flex:1;border:0;background:transparent;padding:8px 4px;border-radius:999px;font-weight:600;font-size:.9rem;color:var(--sage-deep)}
+.tabs button[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.summary{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.month{font-size:1.15rem;margin:24px 0 8px}
+.day-row{display:grid;grid-template-columns:2.6rem 1fr auto;align-items:center;gap:12px;width:100%;border:0;background:var(--card);padding:10px 14px;border-radius:12px;margin-bottom:6px;text-align:left}
+.day-row .d{font-family:var(--serif);font-size:1.3rem;line-height:1;text-align:center}
+.day-row .wd{display:block;font-family:var(--sans);font-size:.72rem;color:var(--muted);margin-top:3px}
+.day-row .tags{margin:0 0 2px}
+.day-row .snip{display:block;font-size:.88rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48vw}
+.day-row.is-today{box-shadow:inset 0 0 0 2px var(--sage)}
+.status{font-size:.8rem;font-weight:600;color:var(--muted)}
+.status.written{color:var(--sage-deep)}
+.status.opened{color:var(--rose)}
+.backup{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:12px;padding:12px;margin-top:8px}
+.backup img{width:48px;height:60px;object-fit:cover;border-radius:4px;flex:none}
+.backup p{white-space:pre-line;font-size:.95rem}
+.card-form{background:var(--card);border-radius:14px;padding:16px;margin:14px 0}
+.card-form h2{margin:0 0 6px;font-size:1.2rem}
+.card-form>p{margin-bottom:14px}
+.day-row .row-thumb{width:34px;height:42px;border-radius:4px;object-fit:cover;background:var(--blush-soft)}
+.day-row .row-thumb.none{background:transparent}
+.picked{display:flex;gap:6px;overflow-x:auto;margin:12px 0}
+.picked img{flex:none;width:52px;height:64px;object-fit:cover;border-radius:4px}
+.progress{height:8px;border-radius:999px;background:var(--sage-soft);overflow:hidden;margin:12px 0 6px}
+.progress span{display:block;height:100%;background:var(--sage-deep);transition:width .3s ease}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.link-btn{border:0;background:none;color:var(--rose);font-weight:600;font-size:.85rem;padding:4px 0;margin-top:4px}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:.95rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<div id="modal" class="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-top"><button class="btn-soft" data-close>Close</button></div>
+    <div class="sheet-body"></div>
+  </div>
+</div>
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+/* ---------- Settings ---------- */
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+const START = '2026-09-17';
+const DUE = '2027-02-11';
+const NAME = 'Maria';
+
+const HOLIDAYS = {
+  '2026-11-26': 'Thanksgiving',
+  '2026-12-25': 'Christmas',
+  '2026-12-31': 'New Year’s Eve',
+  '2027-01-01': 'New Year’s Day',
+  '2027-02-11': 'Due date'
+};
+const FRUIT = {19:'a mango',20:'a banana',21:'a carrot',22:'a spaghetti squash',23:'a large mango',24:'an ear of corn',25:'a rutabaga',26:'a bunch of scallions',27:'a head of cauliflower',28:'an eggplant',29:'a butternut squash',30:'a head of cabbage',31:'a coconut',32:'a jicama',33:'a pineapple',34:'a cantaloupe',35:'a honeydew melon',36:'a head of romaine lettuce',37:'a bunch of Swiss chard',38:'a leek',39:'a mini watermelon',40:'a small pumpkin'};
+
+const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBF5EE" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.5 1.2 4.4 2.5.9-1.3 2.3-2.5 4.4-2.5 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg>';
+const PLAY = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path fill="#FBF5EE" d="M3 1.5v11l9.5-5.5z"/></svg>';
+const DEMO = API_URL.startsWith('PASTE');
+
+/* ---------- Utilities ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const parseISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const addDays = (s, n) => { const d = parseISO(s); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const diffDays = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 86400000);
+const fmtDate = (s, o = { weekday: 'long', month: 'long', day: 'numeric' }) => parseISO(s).toLocaleDateString('en-US', { ...o, timeZone: 'UTC' });
+const isThursday = s => parseISO(s).getUTCDay() === 4;
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : '#';
+const isAdmin = () => location.hash === '#josh';
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+function photoUrl(id, w = 1400) {
+  if (id && id.startsWith('demo')) return demoPhoto(id);
+  return `https://lh3.googleusercontent.com/d/${id}=w${w}`;
+}
+function photoFallback(img) {
+  if (img.dataset.fb || !img.dataset.id) return;
+  img.dataset.fb = '1';
+  img.src = `https://drive.google.com/thumbnail?id=${img.dataset.id}&sz=w1400`;
+}
+function imgTag(id, alt, w, cls = '') {
+  return `<img class="${cls}" src="${photoUrl(id, w)}" data-id="${esc(id)}" alt="${esc(alt)}" loading="lazy" onerror="photoFallback(this)">`;
+}
+
+async function apiGet() {
+  const r = await fetch(API_URL + '?action=feed', { cache: 'no-store' });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+async function apiPost(body) {
+  const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), 2400);
+}
+function showModal(html) {
+  $('#modal .sheet-body').innerHTML = html;
+  $('#modal').hidden = false;
+  $('#modal .sheet').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  $('#modal').hidden = true;
+  document.body.style.overflow = '';
+  if (!isAdmin() && feed) renderHome();
+}
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function tagsHTML(date) {
+  const t = [];
+  if (HOLIDAYS[date]) t.push(`<span class="tag holiday">${HOLIDAYS[date]}</span>`);
+  if (isThursday(date)) t.push('<span class="tag">Date night</span>');
+  return t.length ? `<div class="tags">${t.join('')}</div>` : '';
+}
+
+/* ---------- Maria's app ---------- */
+let feed = null;
+
+async function startMaria() {
+  const cached = store.get('mtg-feed');
+  if (DEMO) { feed = demoFeed(); renderHome(); return; }
+  if (cached) { feed = cached; renderHome(); }
+  else $('#app').innerHTML = '<p class="letter empty">Opening today’s note</p>';
+  refresh(!cached);
+}
+
+async function refresh(showError) {
+  if (DEMO) return;
+  try {
+    feed = await apiGet();
+    store.set('mtg-feed', feed);
+    if ($('#modal').hidden) renderHome();
+  } catch (e) {
+    if (showError) $('#app').innerHTML = `<div class="letter empty"><p>Today’s note couldn’t load. Check your connection, then try again.</p><button class="btn-soft retry" data-retry>Try again</button></div>`;
+  }
+}
+
+function renderHome() {
+  const today = feed.today;
+  const localOpened = new Set(store.get('mtg-opened') || []);
+  feed.days.forEach(d => { if (localOpened.has(d.date)) d.opened = true; });
+
+  const total = diffDays(START, DUE);
+  const left = Math.max(0, diffDays(today, DUE));
+  const frac = Math.min(1, Math.max(0, diffDays(START, today) / total));
+  const gest = 280 - diffDays(today, DUE);
+  const wk = Math.floor(gest / 7), wd = gest % 7;
+  const arrived = feed.arrival && feed.arrival.arrived;
+
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  let sign;
+  if (arrived) sign = '<span class="num words">He’s here</span>';
+  else if (left === 0) sign = '<span class="num words">Today’s the day</span>';
+  else sign = `<span class="num">${left}</span><span class="unit">${left === 1 ? 'mile' : 'miles'} to go</span>`;
+
+  const weekLine = arrived
+    ? 'Welcome to the world, Miles.'
+    : `${wk} weeks${wd ? `, ${wd} ${wd === 1 ? 'day' : 'days'}` : ''} along. Miles is about the size of ${FRUIT[Math.min(40, Math.max(19, wk))]}.`;
+
+  const todayEntry = feed.days.find(d => d.date === today);
+  const waiting = feed.days.filter(d => d.date !== today && !d.empty && !d.opened);
+  const past = feed.days.filter(d => d.date !== today && !d.empty && d.opened).reverse();
+
+  let todayBlock = '';
+  if (todayEntry) todayBlock = `<h2>Today</h2><div class="slot">${slotHTML(todayEntry)}</div>`;
+  else if (!arrived && today > DUE) todayBlock = '<h2>Today</h2><div class="letter empty"><p>Any day now. Miles is on his way.</p></div>';
+
+  const welcome = arrived ? `<h2>Miles is here</h2><article class="letter welcome">
+      ${feed.arrival.photoId ? `<figure class="polaroid">${imgTag(feed.arrival.photoId, 'Miles')}<figcaption>${feed.arrival.date ? fmtDate(feed.arrival.date, { month: 'long', day: 'numeric', year: 'numeric' }) : 'Welcome, Miles'}</figcaption></figure>` : ''}
+      ${feed.arrival.message ? `<p class="message">${esc(feed.arrival.message)}</p>` : ''}
+    </article>` : '';
+
+  $('#app').innerHTML = `
+    ${DEMO ? '<p class="demo">Preview with sample notes. Add your web app URL to go live.</p>' : ''}
+    <header class="top"><h1>Miles To Go</h1><p class="greeting">${hello}, ${NAME}</p></header>
+    <section class="hero" aria-label="${arrived ? 'Miles has arrived' : `${left} days until February 11`}">
+      <div class="sign">${sign}</div>
+      <svg class="road" viewBox="0 0 340 112" aria-hidden="true">
+        <path id="roadPath" d="M12 84 C 70 26, 120 18, 170 56 S 272 100, 328 34" fill="none" stroke="var(--blush)" stroke-width="10" stroke-linecap="round"/>
+        <path d="M12 84 C 70 26, 120 18, 170 56 S 272 100, 328 34" fill="none" stroke="var(--sage)" stroke-width="10" stroke-linecap="round" pathLength="1" stroke-dasharray="${arrived ? 1 : frac} 2"/>
+        <g id="roadMarks"></g>
+      </svg>
+      <p class="week">${weekLine}</p>
+    </section>
+    ${welcome}
+    ${todayBlock}
+    ${waiting.length ? `<h2>${waiting.length === 1 ? 'A note is' : `${waiting.length} notes are`} waiting for you</h2>
+      <div class="waiting">${waiting.map(d => `<button class="mini" data-waiting="${d.date}" aria-label="Open the note for ${fmtDate(d.date)}"><span>${fmtDate(d.date, { month: 'short', day: 'numeric' })}</span></button>`).join('')}</div>` : ''}
+    ${past.length ? `<h2>The road so far</h2><div class="past">${past.map(d => `<button class="thumb" data-view="${d.date}" aria-label="See the note for ${fmtDate(d.date)}">
+        ${d.photoId ? imgTag(d.photoId, '', 400) : `<div class="blank">${HOLIDAYS[d.date] || (isThursday(d.date) ? 'Date night' : 'A note')}</div>`}
+        <span>${fmtDate(d.date, { month: 'short', day: 'numeric' })}</span></button>`).join('')}</div>` : ''}
+  `;
+  placeRoad(arrived ? 1 : frac);
+}
+
+function placeRoad(frac) {
+  const p = $('#roadPath');
+  if (!p) return;
+  const L = p.getTotalLength();
+  const total = diffDays(START, DUE);
+  let h = '';
+  for (let w = 19; w <= 40; w++) {
+    const f = diffDays(START, addDays(DUE, (w - 40) * 7)) / total;
+    if (f < 0) continue;
+    const pt = p.getPointAtLength(f * L);
+    h += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="2.3" class="mark ${f <= frac ? 'passed' : ''}"/>`;
+  }
+  const c = p.getPointAtLength(frac * L);
+  h += `<g transform="translate(${c.x.toFixed(1)} ${c.y.toFixed(1)})"><circle r="11" class="you"/><path transform="translate(-6 -6) scale(.5)" fill="#FBF5EE" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.5 1.2 4.4 2.5.9-1.3 2.3-2.5 4.4-2.5 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></g>`;
+  const e = p.getPointAtLength(L);
+  h += `<text x="${e.x.toFixed(1)}" y="${(e.y - 14).toFixed(1)}" text-anchor="end" class="road-end">Feb 11</text>`;
+  $('#roadMarks').innerHTML = h;
+}
+
+function slotHTML(day) {
+  if (day.empty) return '<div class="letter empty"><p>Today’s note is still on its way. Check back a little later.</p></div>';
+  return day.opened ? letterHTML(day) : envelopeHTML(day);
+}
+
+function envelopeHTML(day) {
+  return `<button class="envelope" data-open="${day.date}" aria-label="Open the note for ${fmtDate(day.date)}">
+    ${tagsHTML(day.date)}<span class="seal">${HEART}</span>
+    <span class="env-date">${fmtDate(day.date)}</span><span class="env-cta">Tap to open</span></button>`;
+}
+
+function letterHTML(day, cls = '') {
+  const photo = day.photoId
+    ? `<figure class="polaroid">${imgTag(day.photoId, `A photo for ${fmtDate(day.date)}`)}<figcaption>${fmtDate(day.date, { month: 'long', day: 'numeric' })}</figcaption></figure>`
+    : `<p class="letter-date">${fmtDate(day.date)}</p>`;
+  const song = day.songUrl
+    ? `<a class="song" href="${esc(safeUrl(day.songUrl))}" target="_blank" rel="noopener"><span class="play">${PLAY}</span><span><small>Today’s song</small>${esc(day.songTitle || 'Play on YouTube')}</span></a>`
+    : '';
+  const idea = day.dateIdea
+    ? `<div class="idea"><h3>${isThursday(day.date) ? 'Tonight’s date' : 'A little surprise'}</h3><p>${esc(day.dateIdea)}</p></div>`
+    : '';
+  return `<article class="letter ${cls}">${tagsHTML(day.date)}${photo}${day.message ? `<p class="message">${esc(day.message)}</p>` : ''}${song}${idea}</article>`;
+}
+
+function openDay(date, slot) {
+  const day = feed.days.find(d => d.date === date);
+  if (!day) return;
+  const env = slot.querySelector('.envelope');
+  env.classList.add('opening');
+  env.disabled = true;
+  day.opened = true;
+  const opened = new Set(store.get('mtg-opened') || []);
+  opened.add(date);
+  store.set('mtg-opened', [...opened]);
+  if (!DEMO) { store.set('mtg-feed', feed); apiPost({ action: 'open', date }).catch(() => {}); }
+  const reveal = () => { slot.innerHTML = letterHTML(day, 'revealed'); };
+  reducedMotion() ? reveal() : setTimeout(reveal, 560);
+}
+
+/* ---------- Josh's desk (#josh) ---------- */
+const admin = { pin: store.get('mtg-pin'), data: null, tab: 'days', photo: null, scrolled: false };
+
+async function startAdmin() {
+  if (DEMO) {
+    $('#app').innerHTML = '<div class="letter empty"><p>Paste your web app URL into index.html first. Then this page lets you write Maria’s notes.</p></div>';
+    return;
+  }
+  if (!admin.pin) return renderPin();
+  try {
+    admin.data = await apiPost({ action: 'list', pin: admin.pin });
+    renderAdmin();
+  } catch (e) {
+    store.set('mtg-pin', null);
+    admin.pin = null;
+    renderPin(/pin/i.test(e.message) ? 'That PIN didn’t match. Try again.' : 'Your sheet couldn’t be reached. Check your connection and try again.');
+  }
+}
+
+function renderPin(msg = '') {
+  $('#app').innerHTML = `<header class="top"><h1>Miles To Go</h1><p class="greeting">Enter your PIN to write notes for ${NAME}.</p></header>
+    <form id="pin-form" class="card-form">
+      <label class="field"><span>PIN</span><input type="password" name="pin" inputmode="numeric" autocomplete="current-password" required></label>
+      ${msg ? `<p class="error">${esc(msg)}</p>` : ''}
+      <button class="btn">Unlock</button>
+    </form>`;
+  $('#pin-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const pin = e.target.pin.value.trim();
+    const btn = e.target.querySelector('.btn');
+    btn.disabled = true; btn.textContent = 'Unlocking';
+    try {
+      admin.data = await apiPost({ action: 'list', pin });
+      admin.pin = pin; store.set('mtg-pin', pin);
+      renderAdmin();
+    } catch (err) {
+      renderPin(/pin/i.test(err.message) ? 'That PIN didn’t match. Try again.' : 'Your sheet couldn’t be reached. Check the web app URL and try again.');
+    }
+  });
+}
+
+function renderAdmin() {
+  if (admin.busy) { toast('Photos are still uploading'); return; }
+  const tabs = [['days', 'Days'], ['photos', 'Photos'], ['backups', 'Backups'], ['arrival', 'Arrival']];
+  const panels = { days: daysPanel, photos: photosPanel, backups: backupsPanel, arrival: arrivalPanel };
+  $('#app').innerHTML = `
+    <header class="admin-head"><h1>Miles To Go</h1><a class="btn-soft" href="${location.pathname}">${NAME}’s view</a></header>
+    <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-tab="${k}" aria-selected="${admin.tab === k}">${l}</button>`).join('')}</div>
+    <div id="panel">${panels[admin.tab]()}</div>`;
+  if (admin.tab === 'days' && !admin.scrolled) {
+    admin.scrolled = true;
+    $('.day-row.is-today')?.scrollIntoView({ block: 'center' });
+  }
+  if (admin.tab === 'photos') bindPhotosPanel();
+  if (admin.tab === 'backups') bindBackupForm();
+  if (admin.tab === 'arrival') bindArrivalForm();
+}
+
+function daysPanel() {
+  const today = admin.data.today;
+  const map = {};
+  admin.data.days.forEach(d => { map[d.date] = d; });
+  let written = 0, withPhoto = 0, nextEmpty = null, month = '', rows = '';
+  for (let d = START; d <= DUE; d = addDays(d, 1)) {
+    const e = map[d] || {};
+    if (e.message) written++;
+    else if (!nextEmpty && d >= today) nextEmpty = d;
+    if (e.photoId) withPhoto++;
+    const m = fmtDate(d, { month: 'long', year: 'numeric' });
+    if (m !== month) { month = m; rows += `<h2 class="month">${m}</h2>`; }
+    let status;
+    if (e.opened) status = '<span class="status opened">Opened</span>';
+    else if (e.message) status = '<span class="status written">Written</span>';
+    else if (e.photoId) status = '<span class="status">Needs a note</span>';
+    else status = `<span class="status">${d <= today ? 'Not written' : 'Empty'}</span>`;
+    rows += `<button class="day-row ${d === today ? 'is-today' : ''}" data-edit="${d}">
+      <span class="d">${parseISO(d).getUTCDate()}<span class="wd">${fmtDate(d, { weekday: 'short' })}</span></span>
+      <span>${tagsHTML(d)}${e.message ? `<span class="snip">${esc(e.message)}</span>` : ''}</span>
+      <span class="btn-row">${status}${e.photoId ? imgTag(e.photoId, '', 120, 'row-thumb') : '<span class="row-thumb none"></span>'}</span></button>`;
+  }
+  const total = diffDays(START, DUE) + 1;
+  return `<div class="summary"><strong>${written} of ${total} days written.</strong> ${withPhoto} have photos.
+    ${nextEmpty ? ` Next day without a note: ${fmtDate(nextEmpty)}.` : ' Every day has a note.'}</div>${rows}`;
+}
+
+function photoFieldHTML(id, existingId) {
+  return `<div class="photo-field">
+    ${existingId ? imgTag(existingId, '', 400, 'preview') : '<img class="preview" alt="">'}
+    <div><label class="btn-soft">${existingId ? 'Change photo' : 'Add photo'}<input type="file" accept="image/*" id="${id}" hidden></label>
+    <p class="hint" id="${id}-hint">${existingId ? '' : 'Optional.'}</p>
+    ${existingId ? `<button type="button" class="link-btn" id="${id}-remove">Remove photo</button>` : ''}</div></div>`;
+}
+
+function bindPhoto(id) {
+  const input = document.getElementById(id);
+  admin.photo = null;
+  admin.removePhoto = false;
+  const remove = document.getElementById(id + '-remove');
+  if (remove) remove.addEventListener('click', () => {
+    admin.photo = null;
+    admin.removePhoto = true;
+    const img = input.closest('.photo-field').querySelector('.preview');
+    img.removeAttribute('src'); img.removeAttribute('data-id');
+    document.getElementById(id + '-hint').textContent = 'Removed when you save.';
+    remove.remove();
+  });
+  input.addEventListener('change', async ev => {
+    const f = ev.target.files[0];
+    if (!f) return;
+    const hint = document.getElementById(id + '-hint');
+    hint.textContent = 'Preparing photo';
+    try {
+      const p = await resizeImage(f);
+      admin.photo = p;
+      admin.removePhoto = false;
+      const img = input.closest('.photo-field').querySelector('.preview');
+      img.removeAttribute('data-id');
+      img.src = 'data:image/jpeg;base64,' + p.data;
+      hint.textContent = 'Ready. It uploads when you save.';
+    } catch {
+      hint.textContent = 'That photo couldn’t be read. Try another one.';
+    }
+  });
+}
+
+async function resizeImage(file, max = 1600) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * scale);
+    c.height = Math.round(img.naturalHeight * scale);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return { data: c.toDataURL('image/jpeg', 0.85).split(',')[1], mime: 'image/jpeg' };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function openEditor(date) {
+  if (admin.busy) { toast('Photos are still uploading'); return; }
+  const e = admin.data.days.find(x => x.date === date) || { date };
+  const thu = isThursday(date);
+  showModal(`<form class="editor" id="editor">
+    <h2>${fmtDate(date)}</h2>${tagsHTML(date)}
+    <label class="field"><span>Message</span><textarea name="message" rows="6" placeholder="Write something for ${NAME}">${esc(e.message)}</textarea></label>
+    ${photoFieldHTML('day-photo', e.photoId)}
+    <label class="field"><span>Song name</span><input type="text" name="songTitle" value="${esc(e.songTitle)}"></label>
+    <label class="field"><span>YouTube link</span><input type="url" name="songUrl" inputmode="url" autocapitalize="off" value="${esc(e.songUrl)}" placeholder="https://youtu.be/"></label>
+    <label class="field"><span>${thu ? 'Tonight’s date' : 'A little surprise'}</span><textarea name="dateIdea" rows="3" placeholder="${thu ? 'Thursday means date night' : 'Optional'}">${esc(e.dateIdea)}</textarea></label>
+    <button class="btn" type="submit">Save day</button>
+  </form>`);
+  bindPhoto('day-photo');
+  $('#editor').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const f = ev.target;
+    const url = f.songUrl.value.trim();
+    if (url && !/^https?:\/\/([\w-]+\.)?(youtube\.com|youtu\.be)\//i.test(url)) { toast('Paste a YouTube link for the song'); return; }
+    const btn = f.querySelector('.btn');
+    btn.disabled = true;
+    btn.textContent = admin.photo ? 'Uploading photo' : 'Saving';
+    try {
+      const res = await apiPost({ action: 'save', pin: admin.pin, date, message: f.message.value.trim(), songTitle: f.songTitle.value.trim(), songUrl: url, dateIdea: f.dateIdea.value.trim(), photo: admin.photo, removePhoto: admin.removePhoto });
+      const i = admin.data.days.findIndex(x => x.date === date);
+      if (i >= 0) admin.data.days[i] = { ...admin.data.days[i], ...res.day };
+      else admin.data.days.push(res.day);
+      closeModal(); renderAdmin(); toast('Saved');
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'Save day';
+      toast(/pin/i.test(err.message) ? 'PIN changed. Reload and unlock again.' : 'Couldn’t save. Check your connection.');
+    }
+  });
+}
+
+/* Albums */
+function shuffleArr(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+function openPhotoSlots() {
+  const tomorrow = addDays(admin.data.today, 1);
+  const taken = new Set(admin.data.days.filter(d => d.photoId).map(d => d.date));
+  let n = 0;
+  for (let d = tomorrow > START ? tomorrow : START; d <= DUE; d = addDays(d, 1)) if (!taken.has(d)) n++;
+  return n;
+}
+
+function mergePlaced(placed) {
+  placed.forEach(p => {
+    const day = admin.data.days.find(d => d.date === p.date);
+    if (day) day.photoId = p.photoId;
+    else admin.data.days.push({ date: p.date, message: '', photoId: p.photoId, songTitle: '', songUrl: '', dateIdea: '', opened: false });
+  });
+}
+
+function photosPanel() {
+  const open = openPhotoSlots();
+  return `<div class="summary"><strong>${open} ${open === 1 ? 'day still needs' : 'days still need'} a photo.</strong>
+    Each photo lands on a random day between tomorrow and February 11 that doesn’t have one yet. Days that already have a photo keep it.</div>
+    <section class="card-form">
+      <h2>From your phone</h2>
+      <p class="hint">Select as many photos from an album as you like.</p>
+      <div class="btn-row"><label class="btn-soft">Choose photos<input type="file" accept="image/*" multiple id="bulk-input" hidden></label></div>
+      <p class="hint" id="bulk-count"></p>
+      <div class="picked" id="bulk-picked"></div>
+      <div id="bulk-status" hidden><div class="progress"><span id="bulk-bar" style="width:0%"></span></div><p class="hint" id="bulk-text"></p></div>
+      <button class="btn" id="bulk-go" type="button" hidden>Place photos</button>
+    </section>
+    <section class="card-form">
+      <h2>From a Google Drive folder</h2>
+      <p class="hint">Good for big albums. Put the photos in a Drive folder and paste its link. Photos already placed are skipped, so you can add more to the folder and run it again.</p>
+      <form id="folder-form">
+        <label class="field"><span>Folder link</span><input type="url" name="folder" required autocapitalize="off" placeholder="https://drive.google.com/drive/folders/"></label>
+        <button class="btn">Place photos from folder</button>
+      </form>
+    </section>`;
+}
+
+function bindPhotosPanel() {
+  admin.bulk = [];
+  const input = $('#bulk-input'), go = $('#bulk-go');
+  input.addEventListener('change', () => {
+    admin.bulk = [...input.files];
+    const n = admin.bulk.length, open = openPhotoSlots();
+    $('#bulk-status').hidden = true;
+    $('#bulk-picked').innerHTML = '';
+    admin.bulk.slice(0, 20).forEach(f => {
+      const img = document.createElement('img');
+      img.alt = '';
+      img.src = URL.createObjectURL(f);
+      img.onload = () => URL.revokeObjectURL(img.src);
+      $('#bulk-picked').appendChild(img);
+    });
+    $('#bulk-count').textContent = !n ? '' : n > open
+      ? `${n} selected. Only ${open} days need photos, so ${open} will be picked at random.`
+      : `${n} selected.`;
+    go.hidden = !n || !open;
+    go.textContent = `Place ${Math.min(n, open)} ${Math.min(n, open) === 1 ? 'photo' : 'photos'}`;
+  });
+  go.addEventListener('click', placeBulk);
+
+  $('#folder-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const btn = ev.target.querySelector('.btn');
+    btn.disabled = true; btn.textContent = 'Placing photos';
+    admin.busy = true;
+    try {
+      const res = await apiPost({ action: 'addFromFolder', pin: admin.pin, folder: ev.target.folder.value.trim() });
+      mergePlaced(res.placed);
+      admin.busy = false;
+      renderAdmin();
+      toast(`Placed ${res.placed.length} photos${res.skipped ? `. ${res.skipped} extra weren’t needed.` : ''}`);
+    } catch (err) {
+      admin.busy = false;
+      btn.disabled = false; btn.textContent = 'Place photos from folder';
+      toast(/not found/i.test(err.message) ? 'That folder couldn’t be opened. Check the link.'
+        : /no new/i.test(err.message) ? 'No new photos in that folder'
+        : 'Couldn’t place photos. Try again.');
+    }
+  });
+}
+
+async function placeBulk() {
+  const open = openPhotoSlots();
+  if (!open) { toast('Every day already has a photo'); return; }
+  const files = shuffleArr([...admin.bulk]).slice(0, open);
+  const go = $('#bulk-go'), input = $('#bulk-input');
+  go.hidden = true; input.disabled = true;
+  $('#bulk-status').hidden = false;
+  admin.busy = true;
+
+  let placed = 0, extra = 0;
+  const failed = [];
+  const progress = () => {
+    const done = placed + failed.length + extra;
+    $('#bulk-bar').style.width = `${Math.round(done / files.length * 100)}%`;
+    $('#bulk-text').textContent = `Placed ${placed} of ${files.length}. Keep this page open.`;
+  };
+  progress();
+
+  for (let i = 0; i < files.length; i += 3) {
+    const ready = [];
+    for (const f of files.slice(i, i + 3)) {
+      try { ready.push({ file: f, photo: await resizeImage(f, 1400) }); }
+      catch { failed.push(f); }
+    }
+    if (ready.length) {
+      try {
+        const res = await apiPost({ action: 'addPhotos', pin: admin.pin, photos: ready.map(r => r.photo) });
+        mergePlaced(res.placed);
+        placed += res.placed.length;
+        extra += res.skipped || 0;
+      } catch {
+        ready.forEach(r => failed.push(r.file));
+      }
+    }
+    progress();
+  }
+
+  admin.busy = false;
+  input.disabled = false;
+  admin.bulk = failed;
+  if (!failed.length) {
+    renderAdmin();
+    toast(`Placed ${placed} ${placed === 1 ? 'photo' : 'photos'}`);
+  } else {
+    $('#bulk-text').textContent = `Placed ${placed}. ${failed.length} didn’t upload. Check your connection and try again.`;
+    $('#bulk-picked').innerHTML = '';
+    $('#bulk-count').textContent = '';
+    go.hidden = false;
+    go.textContent = `Try the ${failed.length} again`;
+  }
+}
+
+function backupsPanel() {
+  const list = admin.data.backups;
+  return `<div class="summary">If a day arrives before you’ve written it, ${NAME} gets one of these instead. ${list.length ? `You have ${list.length}.` : 'Add a few so no day is ever blank.'}</div>
+    <form id="backup-form" class="card-form">
+      <label class="field"><span>Backup note</span><textarea name="message" rows="4" required></textarea></label>
+      ${photoFieldHTML('backup-photo')}
+      <button class="btn">Add backup note</button>
+    </form>
+    ${list.map(b => `<div class="backup">${b.photoId ? imgTag(b.photoId, '', 200) : ''}<p>${esc(b.message)}</p></div>`).join('')}
+    ${list.length ? '<p class="hint">To remove a backup note, delete its row in the Backups sheet.</p>' : ''}`;
+}
+
+function bindBackupForm() {
+  bindPhoto('backup-photo');
+  $('#backup-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const btn = ev.target.querySelector('.btn');
+    btn.disabled = true; btn.textContent = 'Adding';
+    try {
+      const res = await apiPost({ action: 'addBackup', pin: admin.pin, message: ev.target.message.value.trim(), photo: admin.photo });
+      admin.data.backups = res.backups;
+      renderAdmin(); toast('Backup note added');
+    } catch {
+      btn.disabled = false; btn.textContent = 'Add backup note';
+      toast('Couldn’t add it. Check your connection.');
+    }
+  });
+}
+
+function arrivalPanel() {
+  const a = admin.data.arrival || {};
+  return `<div class="summary">When Miles arrives, switch this on and save. ${NAME}’s countdown becomes a welcome page with your photo and message. She can’t see any of this until then.</div>
+    <form id="arrival-form" class="card-form">
+      <label class="switch"><input type="checkbox" name="arrived" ${a.arrived ? 'checked' : ''}><span>Miles is here</span></label>
+      <label class="field"><span>Birthday</span><input type="date" name="date" value="${esc(a.date)}"></label>
+      <label class="field"><span>Message</span><textarea name="message" rows="5">${esc(a.message)}</textarea></label>
+      ${photoFieldHTML('arrival-photo', a.photoId)}
+      <button class="btn">Save arrival</button>
+    </form>`;
+}
+
+function bindArrivalForm() {
+  bindPhoto('arrival-photo');
+  $('#arrival-form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const f = ev.target, btn = f.querySelector('.btn');
+    btn.disabled = true; btn.textContent = admin.photo ? 'Uploading photo' : 'Saving';
+    try {
+      admin.data.arrival = await apiPost({ action: 'setArrival', pin: admin.pin, arrived: f.arrived.checked, date: f.date.value, message: f.message.value.trim(), photo: admin.photo, removePhoto: admin.removePhoto });
+      renderAdmin(); toast('Arrival saved');
+    } catch {
+      btn.disabled = false; btn.textContent = 'Save arrival';
+      toast('Couldn’t save. Check your connection.');
+    }
+  });
+}
+
+/* ---------- Preview data (used until API_URL is set) ---------- */
+function demoPhoto(id) {
+  const tones = { demo1: ['#DFE7DA', '#A9BCA3'], demo2: ['#F8E7E1', '#F1D3CB'], demo3: ['#F1D3CB', '#DFE7DA'] }[id] || ['#F8E7E1', '#DFE7DA'];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><rect width="400" height="500" fill="${tones[0]}"/><circle cx="290" cy="150" r="70" fill="${tones[1]}"/><path d="M0 380 Q120 300 220 360 T400 330 V500 H0Z" fill="${tones[1]}"/><circle cx="160" cy="300" r="34" fill="#FFFDF9" opacity=".8"/><circle cx="215" cy="310" r="30" fill="#FFFDF9" opacity=".8"/></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+function demoFeed() {
+  const opened = new Set(store.get('mtg-opened') || []);
+  const days = [
+    { date: '2026-09-17', photoId: 'demo1', message: 'Day one of the countdown. 147 days until we meet Miles, and a note from me every single one of them.', songTitle: 'Our song', songUrl: 'https://www.youtube.com/', dateIdea: 'Dinner at our spot, then a slow walk home.', opened: true },
+    { date: '2026-09-18', message: 'I love watching you talk to Miles when you think nobody’s listening.', opened: true },
+    { date: '2026-09-19', photoId: 'demo2', message: 'Saturday plan: sleep in. That’s the whole plan.', dateIdea: 'Breakfast in bed is on me.' },
+    { date: '2026-09-20', photoId: 'demo3', message: 'Every mile of this has been better with you.', songTitle: 'A Sunday song', songUrl: 'https://www.youtube.com/' },
+    { date: '2026-09-21', photoId: 'demo1', message: 'Here’s to week 19. You’re doing amazing.', dateIdea: 'Pick any movie tonight. No complaints from me.' }
+  ].map(d => ({ ...d, opened: d.opened || opened.has(d.date) }));
+  return { today: '2026-09-21', days, arrival: { arrived: false } };
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('[data-close]') || t.id === 'modal') return closeModal();
+  const open = t.closest('[data-open]');
+  if (open) return openDay(open.dataset.open, open.parentElement);
+  const waiting = t.closest('[data-waiting]');
+  if (waiting) {
+    const day = feed.days.find(d => d.date === waiting.dataset.waiting);
+    return showModal(`<div class="slot">${envelopeHTML(day)}</div>`);
+  }
+  const view = t.closest('[data-view]');
+  if (view) return showModal(letterHTML(feed.days.find(d => d.date === view.dataset.view)));
+  if (t.closest('[data-retry]')) return refresh(true);
+  const tab = t.closest('[data-tab]');
+  if (tab) { admin.tab = tab.dataset.tab; return renderAdmin(); }
+  const edit = t.closest('[data-edit]');
+  if (edit) return openEditor(edit.dataset.edit);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) closeModal(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !isAdmin()) refresh(false); });
+window.addEventListener('hashchange', () => location.reload());
+
+isAdmin() ? startAdmin() : startMaria();
+</script>
+</body>
+</html>
