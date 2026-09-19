@@ -178,9 +178,9 @@ textarea{resize:vertical;line-height:1.5}
 
 <script>
 /* ---------- Settings ---------- */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxE3bde1pWmP1Vq6w193HSa_bFbW31jUlpFHpehmvIz1J51VOvK1-WoBXM2oE0klVM0/exec';
+const API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
 const START = '2026-09-17';
-const DUE = '2027-02-11';
+const DUE = '2027-02-19';
 const NAME = 'Maria';
 
 const HOLIDAYS = {
@@ -188,9 +188,9 @@ const HOLIDAYS = {
   '2026-12-25': 'Christmas',
   '2026-12-31': 'New Year’s Eve',
   '2027-01-01': 'New Year’s Day',
-  '2027-02-11': 'Due date'
+  '2027-02-19': 'Due date'
 };
-const FRUIT = {19:'a mango',20:'a banana',21:'a carrot',22:'a spaghetti squash',23:'a large mango',24:'an ear of corn',25:'a rutabaga',26:'a bunch of scallions',27:'a head of cauliflower',28:'an eggplant',29:'a butternut squash',30:'a head of cabbage',31:'a coconut',32:'a jicama',33:'a pineapple',34:'a cantaloupe',35:'a honeydew melon',36:'a head of romaine lettuce',37:'a bunch of Swiss chard',38:'a leek',39:'a mini watermelon',40:'a small pumpkin'};
+const FRUIT = {13:'a lemon',14:'a nectarine',15:'an apple',16:'an avocado',17:'a pear',18:'a bell pepper',19:'a mango',20:'a banana',21:'a carrot',22:'a spaghetti squash',23:'a large mango',24:'an ear of corn',25:'a rutabaga',26:'a bunch of scallions',27:'a head of cauliflower',28:'an eggplant',29:'a butternut squash',30:'a head of cabbage',31:'a coconut',32:'a jicama',33:'a pineapple',34:'a cantaloupe',35:'a honeydew melon',36:'a head of romaine lettuce',37:'a bunch of Swiss chard',38:'a leek',39:'a mini watermelon',40:'a small pumpkin'};
 
 const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FBF5EE" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.5 1.2 4.4 2.5.9-1.3 2.3-2.5 4.4-2.5 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg>';
 const PLAY = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path fill="#FBF5EE" d="M3 1.5v11l9.5-5.5z"/></svg>';
@@ -308,7 +308,7 @@ function renderHome() {
 
   const weekLine = arrived
     ? 'Welcome to the world, Miles.'
-    : `${wk} weeks${wd ? `, ${wd} ${wd === 1 ? 'day' : 'days'}` : ''} along. Miles is about the size of ${FRUIT[Math.min(40, Math.max(19, wk))]}.`;
+    : `${wk} weeks${wd ? `, ${wd} ${wd === 1 ? 'day' : 'days'}` : ''} along. Miles is about the size of ${FRUIT[Math.min(40, Math.max(13, wk))]}.`;
 
   const todayEntry = feed.days.find(d => d.date === today);
   const waiting = feed.days.filter(d => d.date !== today && !d.empty && !d.opened);
@@ -326,7 +326,7 @@ function renderHome() {
   $('#app').innerHTML = `
     ${DEMO ? '<p class="demo">Preview with sample notes. Add your web app URL to go live.</p>' : ''}
     <header class="top"><h1>Miles To Go</h1><p class="greeting">${hello}, ${NAME}</p></header>
-    <section class="hero" aria-label="${arrived ? 'Miles has arrived' : `${left} days until February 11`}">
+    <section class="hero" aria-label="${arrived ? 'Miles has arrived' : `${left} days until February 19`}">
       <div class="sign">${sign}</div>
       <svg class="road" viewBox="0 0 340 112" aria-hidden="true">
         <path id="roadPath" d="M12 84 C 70 26, 120 18, 170 56 S 272 100, 328 34" fill="none" stroke="var(--blush)" stroke-width="10" stroke-linecap="round"/>
@@ -361,7 +361,7 @@ function placeRoad(frac) {
   const c = p.getPointAtLength(frac * L);
   h += `<g transform="translate(${c.x.toFixed(1)} ${c.y.toFixed(1)})"><circle r="11" class="you"/><path transform="translate(-6 -6) scale(.5)" fill="#FBF5EE" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2.1 0 3.5 1.2 4.4 2.5.9-1.3 2.3-2.5 4.4-2.5 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></g>`;
   const e = p.getPointAtLength(L);
-  h += `<text x="${e.x.toFixed(1)}" y="${(e.y - 14).toFixed(1)}" text-anchor="end" class="road-end">Feb 11</text>`;
+  h += `<text x="${e.x.toFixed(1)}" y="${(e.y - 14).toFixed(1)}" text-anchor="end" class="road-end">Feb 19</text>`;
   $('#roadMarks').innerHTML = h;
 }
 
@@ -604,7 +604,7 @@ function mergePlaced(placed) {
 function photosPanel() {
   const open = openPhotoSlots();
   return `<div class="summary"><strong>${open} ${open === 1 ? 'day still needs' : 'days still need'} a photo.</strong>
-    Each photo lands on a random day between tomorrow and February 11 that doesn’t have one yet. Days that already have a photo keep it.</div>
+    Each photo lands on a random day between tomorrow and February 19 that doesn’t have one yet. Days that already have a photo keep it.</div>
     <section class="card-form">
       <h2>From your phone</h2>
       <p class="hint">Select as many photos from an album as you like.</p>
@@ -786,11 +786,11 @@ function demoPhoto(id) {
 function demoFeed() {
   const opened = new Set(store.get('mtg-opened') || []);
   const days = [
-    { date: '2026-09-17', photoId: 'demo1', message: 'Day one of the countdown. 147 days until we meet Miles, and a note from me every single one of them.', songTitle: 'Our song', songUrl: 'https://www.youtube.com/', dateIdea: 'Dinner at our spot, then a slow walk home.', opened: true },
+    { date: '2026-09-17', photoId: 'demo1', message: 'Day one of the countdown. 155 days until we meet Miles, and a note from me every single one of them.', songTitle: 'Our song', songUrl: 'https://www.youtube.com/', dateIdea: 'Dinner at our spot, then a slow walk home.', opened: true },
     { date: '2026-09-18', message: 'I love watching you talk to Miles when you think nobody’s listening.', opened: true },
     { date: '2026-09-19', photoId: 'demo2', message: 'Saturday plan: sleep in. That’s the whole plan.', dateIdea: 'Breakfast in bed is on me.' },
     { date: '2026-09-20', photoId: 'demo3', message: 'Every mile of this has been better with you.', songTitle: 'A Sunday song', songUrl: 'https://www.youtube.com/' },
-    { date: '2026-09-21', photoId: 'demo1', message: 'Here’s to week 19. You’re doing amazing.', dateIdea: 'Pick any movie tonight. No complaints from me.' }
+    { date: '2026-09-21', photoId: 'demo1', message: 'Here’s to week 18. You’re doing amazing.', dateIdea: 'Pick any movie tonight. No complaints from me.' }
   ].map(d => ({ ...d, opened: d.opened || opened.has(d.date) }));
   return { today: '2026-09-21', days, arrival: { arrived: false } };
 }
